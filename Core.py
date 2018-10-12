@@ -8,11 +8,7 @@ from sklearn.naive_bayes import GaussianNB
 import FitnessFunction
 from sklearn.model_selection import RepeatedStratifiedKFold
 from sklearn.metrics.pairwise import euclidean_distances as ecd
-
-import mmd
-import theano.tensor as T
-import theano
-import time
+from mlxtend.feature_selection import SequentialFeatureSelector as SFS
 
 
 src_data = np.genfromtxt("data/Source", delimiter=",")
@@ -46,3 +42,10 @@ classifier = KNeighborsClassifier(n_neighbors=1, algorithm='brute')
 # now creating the pseudo-label
 classifier.fit(src_feature, src_label)
 tarU_SoftLabel = classifier.predict(tarU_feature)
+
+# create a feature selection
+print("Performing feature selection")
+sfs = SFS(classifier, k_features=no_features/10, forward=True, floating=False, scoring='accuracy')
+sfs = sfs.fit(src_feature, src_label)
+print(sfs.k_feature_idx_)
+print("Finish feature selection")
