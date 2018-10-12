@@ -1,0 +1,460 @@
+Supervised: False 
+Number of sub tree: 5
+Source weight: 1.000000
+Diff source and target weight: 0.620004
+Target weight: 0.379996 
+----Generation 0 -----
+  Min 0.8182737880420635
+  Max 0.9673198922753519
+  Avg 0.8824813576982704
+  Std 0.023246137442878866
+  Source Error: 0.696078 
+  Diff Marg: 0.005562 
+  Target Error: 0.312494 
+  Accuracy on unlabel target: 0.020588235294117685
+----Generation 1 -----
+  Min 0.8163958631297997
+  Max 0.9712404004436647
+  Avg 0.8710624316081256
+  Std 0.02414350602966581
+  Source Error: 0.678922 
+  Diff Marg: 0.016430 
+  Target Error: 0.334970 
+  Accuracy on unlabel target: 0.04705882352941182
+----Generation 2 -----
+  Min 0.8163958631297997
+  Max 0.9636338537604898
+  Avg 0.8723118850792521
+  Std 0.02544801832741282
+  Source Error: 0.678922 
+  Diff Marg: 0.016430 
+  Target Error: 0.319110 
+  Accuracy on unlabel target: 0.04705882352941182
+----Generation 3 -----
+  Min 0.8163958631297997
+  Max 0.9643028637547101
+  Avg 0.8667690420439661
+  Std 0.027091265891605768
+  Source Error: 0.678922 
+  Diff Marg: 0.016430 
+  Target Error: 0.319110 
+  Accuracy on unlabel target: 0.04705882352941182
+----Generation 4 -----
+  Min 0.8163958631297997
+  Max 0.9446480706512618
+  Avg 0.8617766821830223
+  Std 0.025479368744834092
+  Source Error: 0.678922 
+  Diff Marg: 0.016430 
+  Target Error: 0.319110 
+  Accuracy on unlabel target: 0.04705882352941182
+----Generation 5 -----
+  Min 0.7994227998829808
+  Max 0.9607065549765116
+  Avg 0.8578004534814998
+  Std 0.02611056104310907
+  Source Error: 0.651961 
+  Diff Marg: 0.011149 
+  Target Error: 0.369871 
+  Accuracy on unlabel target: 0.04705882352941182
+----Generation 6 -----
+  Min 0.7896521177511849
+  Max 0.9407083458403716
+  Avg 0.8425399309073474
+  Std 0.023512171698272365
+  Source Error: 0.659314 
+  Diff Marg: 0.015040 
+  Target Error: 0.318459 
+  Accuracy on unlabel target: 0.04705882352941182
+----Generation 7 -----
+  Min 0.775539752545878
+  Max 0.9513236708943782
+  Avg 0.8483500883043694
+  Std 0.02823626440872363
+  Source Error: 0.622549 
+  Diff Marg: 0.012637 
+  Target Error: 0.381993 
+  Accuracy on unlabel target: 0.05882352941176472
+----Generation 8 -----
+  Min 0.7733154840074344
+  Max 0.9203264254098535
+  Avg 0.8340123087401657
+  Std 0.025933503633837125
+  Source Error: 0.622549 
+  Diff Marg: 0.022644 
+  Target Error: 0.359812 
+  Accuracy on unlabel target: 0.05294117647058827
+----Generation 9 -----
+  Min 0.7674478507780397
+  Max 0.9166193426889635
+  Avg 0.8243840660289058
+  Std 0.024470322504104042
+  Source Error: 0.637255 
+  Diff Marg: 0.010465 
+  Target Error: 0.325541 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 10 -----
+  Min 0.7597385920235928
+  Max 0.8979747412063478
+  Avg 0.8219534283727098
+  Std 0.027785119403831344
+  Source Error: 0.602941 
+  Diff Marg: 0.007388 
+  Target Error: 0.400575 
+  Accuracy on unlabel target: 0.04705882352941182
+----Generation 11 -----
+  Min 0.6995852982925322
+  Max 0.8853887810153133
+  Avg 0.8018085410915312
+  Std 0.0278457062861458
+  Source Error: 0.602941 
+  Diff Marg: 0.007388 
+  Target Error: 0.242275 
+  Accuracy on unlabel target: 0.04705882352941182
+----Generation 12 -----
+  Min 0.6995852982925322
+  Max 0.8929050922907101
+  Avg 0.787370839212357
+  Std 0.028468404706565385
+  Source Error: 0.602941 
+  Diff Marg: 0.007388 
+  Target Error: 0.242275 
+  Accuracy on unlabel target: 0.04705882352941182
+----Generation 13 -----
+  Min 0.6995852982925322
+  Max 0.863218295635431
+  Avg 0.7765651438143147
+  Std 0.030791199068653286
+  Source Error: 0.602941 
+  Diff Marg: 0.007388 
+  Target Error: 0.242275 
+  Accuracy on unlabel target: 0.04705882352941182
+----Generation 14 -----
+  Min 0.6962843680150437
+  Max 0.8528317352102143
+  Avg 0.7687523926002204
+  Std 0.03146034803503472
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.283048 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 15 -----
+  Min 0.6962843680150437
+  Max 0.8671734775132485
+  Avg 0.771844878943707
+  Std 0.036563960576645085
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 16 -----
+  Min 0.6962843680150437
+  Max 0.8829001362221138
+  Avg 0.7696548300759936
+  Std 0.03635630095303243
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 17 -----
+  Min 0.6962843680150437
+  Max 0.8427999780199292
+  Avg 0.7660256651335294
+  Std 0.0365461929114412
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 18 -----
+  Min 0.6928694483931658
+  Max 0.8489355138438021
+  Avg 0.7698180422828835
+  Std 0.03337971279139808
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 19 -----
+  Min 0.6928694483931658
+  Max 0.8531953076013151
+  Avg 0.767340069006874
+  Std 0.03380310598672499
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 20 -----
+  Min 0.6928694483931658
+  Max 0.8380201247330615
+  Avg 0.7661861515795121
+  Std 0.03481240992227914
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 21 -----
+  Min 0.6928694483931658
+  Max 0.8344728001312874
+  Avg 0.7638412716241385
+  Std 0.03571267855627643
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 22 -----
+  Min 0.6928694483931658
+  Max 0.8784719186894151
+  Avg 0.7598662718442837
+  Std 0.03603262307226083
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 23 -----
+  Min 0.6928694483931658
+  Max 0.8353929825578476
+  Avg 0.7583045798486512
+  Std 0.03575903555076794
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 24 -----
+  Min 0.6928694483931658
+  Max 0.8327663156576663
+  Avg 0.760455226646618
+  Std 0.03442222450282117
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 25 -----
+  Min 0.6928694483931658
+  Max 0.8341634866469078
+  Avg 0.761042271333983
+  Std 0.03516653896148182
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 26 -----
+  Min 0.6928694483931658
+  Max 0.8353929825578476
+  Avg 0.7537437539390383
+  Std 0.03756662626834073
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 27 -----
+  Min 0.6928694483931658
+  Max 0.8478973364687704
+  Avg 0.7479139294117956
+  Std 0.0369505534825713
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 28 -----
+  Min 0.6928694483931658
+  Max 0.8478973364687704
+  Avg 0.750187041791919
+  Std 0.038628277683589764
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 29 -----
+  Min 0.6928694483931658
+  Max 0.8478973364687704
+  Avg 0.7496490873208826
+  Std 0.03811862332733584
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 30 -----
+  Min 0.6928694483931658
+  Max 0.8353929825578476
+  Avg 0.754232022894518
+  Std 0.037027204025806094
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 31 -----
+  Min 0.6928694483931658
+  Max 0.8478973364687704
+  Avg 0.7545454156310426
+  Std 0.03721538608780504
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 32 -----
+  Min 0.6928694483931658
+  Max 0.8478973364687704
+  Avg 0.7513277270593949
+  Std 0.038438947893731715
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 33 -----
+  Min 0.6928694483931658
+  Max 0.8478973364687704
+  Avg 0.7528916684265724
+  Std 0.03739058545103012
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 34 -----
+  Min 0.6928694483931658
+  Max 0.8478973364687704
+  Avg 0.7530390559623394
+  Std 0.03572420752707696
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 35 -----
+  Min 0.6928694483931658
+  Max 0.8353929825578476
+  Avg 0.7556692132243737
+  Std 0.0356725418033922
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 36 -----
+  Min 0.6928694483931658
+  Max 0.8478973364687704
+  Avg 0.7522349992688425
+  Std 0.03600869158030687
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 37 -----
+  Min 0.6928694483931658
+  Max 0.8353929825578476
+  Avg 0.7555191679954332
+  Std 0.03738811081570982
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 38 -----
+  Min 0.6928694483931658
+  Max 0.8353929825578476
+  Avg 0.7546041272949138
+  Std 0.03699113305234597
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 39 -----
+  Min 0.6928694483931658
+  Max 0.8478973364687704
+  Avg 0.7511543933430795
+  Std 0.037206822256743204
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 40 -----
+  Min 0.6928694483931658
+  Max 0.8353929825578476
+  Avg 0.7506634583780049
+  Std 0.03685581029996867
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 41 -----
+  Min 0.6928694483931658
+  Max 0.8353929825578476
+  Avg 0.7486646991836757
+  Std 0.03733373213303928
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 42 -----
+  Min 0.6928694483931658
+  Max 0.8478973364687704
+  Avg 0.7496163767725409
+  Std 0.03519202048519922
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 43 -----
+  Min 0.6928694483931658
+  Max 0.8478973364687704
+  Avg 0.7539800232540986
+  Std 0.038094109871211534
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 44 -----
+  Min 0.6928694483931658
+  Max 0.8353929825578476
+  Avg 0.7550213731323068
+  Std 0.03843781246694207
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 45 -----
+  Min 0.6928694483931658
+  Max 0.8478973364687704
+  Avg 0.7550799350427809
+  Std 0.037369360357823136
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 46 -----
+  Min 0.6928694483931658
+  Max 0.8478973364687704
+  Avg 0.7481887127715289
+  Std 0.03839218234893085
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 47 -----
+  Min 0.6928694483931658
+  Max 0.8478973364687704
+  Avg 0.7524718179573944
+  Std 0.03878554089410132
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 48 -----
+  Min 0.6928694483931658
+  Max 0.8317549302410613
+  Avg 0.7546182734498729
+  Std 0.035503689549776285
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Generation 49 -----
+  Min 0.6928694483931658
+  Max 0.8478973364687704
+  Avg 0.753420342302042
+  Std 0.036928356513649466
+  Source Error: 0.583333 
+  Diff Marg: 0.008700 
+  Target Error: 0.274061 
+  Accuracy on unlabel target: 0.03529411764705881
+----Final -----
+Accuracy on the target (TL): 0.035294
+Accuracy on the target (No TL): 0.129412
+Computation time: 3774.666080
+Number of features: 5
