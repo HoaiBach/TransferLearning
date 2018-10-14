@@ -23,7 +23,7 @@ def domainDifferece(src_feature, src_label, classifier, tarU_feature, tarU_soft_
         if tarL_label is None:
             tar_err = conditionalDistributionDifference(src_feature=src_feature, src_label=src_label,
                                                         classifier=classifier,
-                                                        tarU_feature=tarU_feature, tarU_soft_label=tarU_soft_label)
+                                                        tar_feature=tarU_feature, tar_label=tarU_soft_label)
             #pseudoErrorGecco(src_feature, src_label, tarU_feature)
         else:
             tar_err = classificationError(training_feature=src_feature, training_label=src_label,
