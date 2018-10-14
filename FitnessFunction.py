@@ -7,45 +7,59 @@ import proxy_a_distance as ADistance
 
 srcWeight = 1.0
 margWeight= 0.5
-condWeight = 0.5
+condWeight = 1.0
 
-def domainDifferece(src_feature, src_label, tarU_feature, tarU_SoftLabel, classifier, tarL_feature=None, tarL_label=None):
+
+def domainDifferece(src_feature, src_label, classifier, tarU_feature, tarU_soft_label = None, tarL_feature=None, tarL_label=None):
+
     if margWeight==0:
         diff_marg=0
     else:
-        diff_marg = distributionDifference(src_feature, tarU_feature)
+        diff_marg = distributionDifference(source=src_feature, target=tarU_feature)
 
     if condWeight == 0:
         tar_err = 0
     else:
         if tarL_label is None:
-            tar_err = conditionalDistributionDifference(src_feature, src_label, tarU_feature, tarU_SoftLabel)
+            tar_err = conditionalDistributionDifference(src_feature=src_feature, src_label=src_label,
+                                                        classifier=classifier,
+                                                        tarU_feature=tarU_feature, tarU_soft_label=tarU_soft_label)
             #pseudoErrorGecco(src_feature, src_label, tarU_feature)
         else:
-            tar_err = classificationError(src_feature, src_label, tarL_feature, tarL_label, classifier)
+            tar_err = classificationError(training_feature=src_feature, training_label=src_label,
+                                          classifier=classifier,
+                                          testing_feature=tarL_feature, testing_label=tarL_label)
 
     if srcWeight != 0:
-        src_err = nFoldClassificationError(src_feature, src_label, classifier, n_fold=3)
+        src_err = nFoldClassificationError(features=src_feature, labels=src_label,
+                                           classifier=classifier, n_fold=3)
     else:
         src_err = 0
 
     return src_err, diff_marg, tar_err
 
+
 # fitness function with 3 components: marginal, source error, classification error
-def fitnessFunction(src_feature, src_label, tarU_feature, classifier, tarL_feature=None, tarL_label=None):
-    src_err, diff_marg, tar_err = domainDifferece(src_feature, src_label, tarU_feature, classifier, tarL_feature, tarL_label)
+def fitnessFunction(src_feature, src_label, tarU_feature, tarU_soft_label, classifier, tarL_feature=None, tarL_label=None):
+    src_err, diff_marg, tar_err = domainDifferece(src_feature=src_feature, src_label=src_label,
+                                                  classifier=classifier,
+                                                  tarU_feature=tarU_feature, tarU_soft_label=tarU_soft_label,
+                                                  tarL_feature=tarL_feature, tarL_label=tarL_label)
     return srcWeight * src_err + condWeight * tar_err + margWeight * diff_marg
+
 
 # Use training dataset to classify the testing dataset -> pseudo-testing
 # use pseudo-testing to classify the training -> pseudo-training
 # get the accuracy
-def pseudoError(training_feature, training_label, testing_feature, classifier):
+def pseudoError(training_feature, training_label, classifier, testing_feature):
 
-    classifier.fit(training_feature,training_label)
+    classifier.fit(training_feature, training_label)
     testing_pseudo = classifier.predict(testing_feature)
 
-    #now treat testing as training and training as test
-    return classificationError(testing_feature, testing_pseudo, training_feature, training_label, classifier)
+    # now treat testing as training and training as test
+    return classificationError(training_feature=testing_feature, training_label=testing_pseudo,
+                               classifier=classifier,
+                               testing_feature=training_feature, testing_label=training_label)
 
 
 # Find the closest insance of an instance on the target domain
@@ -77,7 +91,12 @@ def distributionDifference(source, target):
 
 
 # calculate the conditional distribution :
-def conditionalDistributionDifference(src_feature, src_label, tar_feature, tar_label):
+def conditionalDistributionDifference(src_feature, src_label, classifier, tar_feature, tar_label):
+    # if label is none, we have to estimate the label using the current src label
+    if tar_label is None:
+        classifier.fit(src_feature, src_label)
+        tar_label = classifier.predict(tar_feature)
+
     unique_class = np.unique(tar_label)
     diff = 0
     for uc in unique_class:
@@ -87,10 +106,11 @@ def conditionalDistributionDifference(src_feature, src_label, tar_feature, tar_l
     return diff/len(unique_class)
 
 
-def classificationError(training_feature, training_label, testing_feature, testing_label, classifier):
+def classificationError(training_feature, training_label, classifier, testing_feature, testing_label):
     classifier.fit(training_feature, training_label)
-    error = 1.0 - classifier.score(testing_feature,testing_label)
+    error = 1.0 - classifier.score(testing_feature, testing_label)
     return error
+
 
 def nFoldClassificationError(features, labels, classifier, n_fold):
     error = 0
@@ -103,6 +123,7 @@ def nFoldClassificationError(features, labels, classifier, n_fold):
         error += fold_error
     error = error/n_fold
     return error
+
 
 def setWeight(src_feature, src_label, tarU_feature, tarU_label):
     global condWeight, margWeight

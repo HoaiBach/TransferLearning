@@ -41,11 +41,14 @@ classifier = KNeighborsClassifier(n_neighbors=1, algorithm='brute')
 
 # now creating the pseudo-label
 classifier.fit(src_feature, src_label)
-tarU_SoftLabel = classifier.predict(tarU_feature)
+tarU_soft_label = classifier.predict(tarU_feature)
 
 # create a feature selection
-print("Performing feature selection")
 sfs = SFS(classifier, k_features=no_features/10, forward=True, floating=False, scoring='accuracy')
 sfs = sfs.fit(src_feature, src_label)
-print(sfs.k_feature_idx_)
-print("Finish feature selection")
+f_indices = sfs.k_feature_idx_
+src_feature = src_feature[:, f_indices]
+tarL_feature = tarL_feature[:, f_indices]
+tarU_feature = tarU_feature[:, f_indices]
+no_features = len(f_indices)
+print(np.shape(src_feature))
