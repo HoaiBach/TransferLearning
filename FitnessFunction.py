@@ -4,12 +4,13 @@ import numpy as np
 from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors
 import Utility
 import proxy_a_distance as ADistance
+import sys
 
 srcWeight = 0.1
 margWeight= 0.0
 condWeight = 0.9
 
-condVersion = 1
+condVersion = 1 #1-gecco. 2-wrapper, 3-conditional MMD
 
 
 def domainDifferece(src_feature, src_label, classifier, tarU_feature, tarU_soft_label = None, tarL_feature=None, tarL_label=None):
@@ -134,7 +135,7 @@ def nFoldClassificationError(features, labels, classifier, n_fold):
 
 
 def setWeight(src_feature, src_label, tarU_feature, tarU_label):
-    global condWeight, margWeight
+    global condWeight, margWeight,srcWeight
     margDiff = ADistance.proxy_a_distance(src_feature, tarU_feature)
 
     condDiff = 0
@@ -148,4 +149,5 @@ def setWeight(src_feature, src_label, tarU_feature, tarU_label):
     condDiff = condDiff/len(uniqueClass)
     condWeight = condDiff/(condDiff+margDiff)
     margWeight = margDiff/(condDiff+margDiff)
+    srcWeight = 1.0
 
