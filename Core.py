@@ -32,9 +32,9 @@ src_feature = features_new[0:len(src_feature), ]
 tarU_feature = features_new[len(src_feature): len(src_feature)+len(tarU_feature), ]
 tarL_feature = features_new[len(src_feature)+len(tarU_feature): len(src_feature)+len(tarU_feature)+len(tarL_feature), ]
 
-src_feature, src_label = Utility.balanced_sample_maker(src_feature, src_label, sample_size=5)
-tarL_feature, tarL_label = Utility.balanced_sample_maker(tarL_feature, tarL_label, sample_size=1)
-tarU_feature, tarU_label = Utility.balanced_sample_maker(tarU_feature, tarU_label, sample_size=5)
+src_feature, src_label = Utility.balanced_sample_maker(src_feature, src_label, sample_size=10)
+tarL_feature, tarL_label = Utility.balanced_sample_maker(tarL_feature, tarL_label, sample_size=3)
+tarU_feature, tarU_label = Utility.balanced_sample_maker(tarU_feature, tarU_label, sample_size=10)
 
 
 classifier = KNeighborsClassifier(n_neighbors=1, algorithm='brute')
@@ -44,11 +44,11 @@ classifier.fit(src_feature, src_label)
 tarU_soft_label = classifier.predict(tarU_feature)
 
 # create a feature selection
-sfs = SFS(classifier, k_features=no_features/10, forward=True, floating=False, scoring='accuracy')
-sfs = sfs.fit(src_feature, src_label)
-f_indices = sfs.k_feature_idx_
-src_feature = src_feature[:, f_indices]
-tarL_feature = tarL_feature[:, f_indices]
-tarU_feature = tarU_feature[:, f_indices]
-no_features = len(f_indices)
-print(np.shape(src_feature))
+#sfs = SFS(classifier, k_features=no_features/10, forward=True, floating=False, scoring='accuracy')
+#sfs = sfs.fit(src_feature, src_label)
+#f_indices = sfs.k_feature_idx_
+#src_feature = src_feature[:, f_indices]
+#tarL_feature = tarL_feature[:, f_indices]
+#tarU_feature = tarU_feature[:, f_indices]
+#no_features = len(f_indices)
+#print(np.shape(src_feature))
