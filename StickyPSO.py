@@ -127,20 +127,10 @@ def main(args):
     else:
         SUPERVISED = True
 
-    component_index = int(args[2])
-    if component_index == 1:
-        FitnessFunction.srcWeight = 1.0
-        FitnessFunction.margWeight = 0.0
-        FitnessFunction.condWeight = 0.0
-    elif component_index == 2:
-        FitnessFunction.srcWeight = 0.0
-        FitnessFunction.margWeight = 1.0
-        FitnessFunction.condWeight = 0.0
-    else:
-        FitnessFunction.srcWeight = 0.0
-        FitnessFunction.margWeight = 0.0
-        FitnessFunction.condWeight = 1.0
-        FitnessFunction.condVersion = int(args[3])
+    cond_index = int(args[2])
+    FitnessFunction.condVersion = cond_index
+
+    FitnessFunction.setWeight(Core.src_feature, Core.src_label, Core.tarU_feature, Core.tarU_soft_label)
 
     # Set the weight for each components in the fitness function
     #FitnessFunction.setWeight(src_feature=Core.src_feature, src_label=Core.src_label,
@@ -225,9 +215,22 @@ def main(args):
         i_pbest = pg_rate*i_gbest
         ustks   = ustks_low + (ustks_up-ustks_low)*(g+1)/NGEN
 
-        # Update the pseudo label
-        Core.classifier.fit(src_feature, Core.src_label)
-        Core.tarU_soft_label = Core.classifier.predict(tarU_feature)
+        # Update the pseudo label and the weights(only when the cond_index is equal to 2)
+        if cond_index == 3:
+            Core.classifier.fit(src_feature, Core.src_label)
+            Core.tarU_soft_label = Core.classifier.predict(tarU_feature)
+            # Need to update the fitness value of best and pbest again
+            FitnessFunction.setWeight(src_feature, Core.src_label, tarU_feature, Core.tarU_soft_label)
+            best.fitness.values = FitnessFunction.fitnessFunction(src_feature, Core.src_label,
+                                                                  tarU_feature, Core.tarU_soft_label,
+                                                                  Core.classifier),
+            for part in pop:
+                indices = [index for index, entry in enumerate(part.best) if entry == 1.0]
+                p_src_feature = Core.src_feature[:, indices]
+                p_tarU_feature = Core.tarU_feature[:, indices]
+                part.best.fitness.values = FitnessFunction.fitnessFunction(p_src_feature, Core.src_label,
+                                                                           p_tarU_feature, Core.tarU_soft_label,
+                                                                           Core.classifier),
 
     time_elapsed = (time.clock() - time_start)
     toWrite += "----Final -----\n"
