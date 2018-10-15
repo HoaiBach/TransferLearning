@@ -5,9 +5,11 @@ from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors
 import Utility
 import proxy_a_distance as ADistance
 
-srcWeight = 1.0
-margWeight= 0.5
-condWeight = 1.0
+srcWeight = 0.1
+margWeight= 0.0
+condWeight = 0.9
+
+condVersion = 1
 
 
 def domainDifferece(src_feature, src_label, classifier, tarU_feature, tarU_soft_label = None, tarL_feature=None, tarL_label=None):
@@ -21,10 +23,16 @@ def domainDifferece(src_feature, src_label, classifier, tarU_feature, tarU_soft_
         tar_err = 0
     else:
         if tarL_label is None:
-            tar_err = conditionalDistributionDifference(src_feature=src_feature, src_label=src_label,
-                                                        classifier=classifier,
-                                                        tar_feature=tarU_feature, tar_label=tarU_soft_label)
-            #pseudoErrorGecco(src_feature, src_label, tarU_feature)
+            if condVersion == 1:
+                tar_err = pseudoErrorGecco(src_feature, src_label, tarU_feature)
+            elif condVersion == 2:
+                tar_err = pseudoError(training_feature=src_feature, training_label=src_label,
+                                      classifier=classifier,
+                                      testing_feature=tarU_feature)
+            else:
+                tar_err = conditionalDistributionDifference(src_feature=src_feature, src_label=src_label,
+                                                            classifier=classifier,
+                                                            tar_feature=tarU_feature, tar_label=tarU_soft_label)
         else:
             tar_err = classificationError(training_feature=src_feature, training_label=src_label,
                                           classifier=classifier,
