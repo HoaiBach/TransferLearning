@@ -54,7 +54,7 @@ def fitnessFunction(src_feature, src_label, tarU_feature, tarU_soft_label, class
                                                   classifier=classifier,
                                                   tarU_feature=tarU_feature, tarU_soft_label=tarU_soft_label,
                                                   tarL_feature=tarL_feature, tarL_label=tarL_label)
-    return srcWeight * src_err + condWeight * tar_err + margWeight * diff_marg
+    return srcWeight * src_err + condWeight * tar_err + margWeight * diff_marg, src_err, diff_marg, tar_err
 
 
 # Use training dataset to classify the testing dataset -> pseudo-testing
@@ -89,7 +89,7 @@ def pseudoErrorGecco(training_feature, training_label, testing_feature):
         current, neighbor = pair
         if testing_pseudo[current] == testing_pseudo[neighbor]:
             count += 1.0
-    return count/len(testing_feature)
+    return 1-count/len(testing_feature)
 
 
 # calculate the  distribution difference
