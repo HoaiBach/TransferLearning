@@ -12,7 +12,7 @@ import FitnessFunction, GPUtility, Core
 
 
 # GP parameters
-POP_SIZE = 1024
+POP_SIZE = 512
 NGEN = 50
 
 NO_SUB_IND = 1
@@ -148,8 +148,8 @@ def main(args):
 
     random.seed(1617**2*run_index)
 
-    FitnessFunction.setWeight(src_feature=Core.src_feature, src_label=Core.src_label,
-                              tarU_feature=Core.tarU_feature, tarU_label=Core.tarU_soft_label)
+    #FitnessFunction.setWeight(src_feature=Core.src_feature, src_label=Core.src_label,
+    #                          tarU_feature=Core.tarU_feature, tarU_label=Core.tarU_soft_label)
     time_start = time.clock()
     pop = toolbox.population()
     hof = tools.HallOfFame(NO_ELI)
