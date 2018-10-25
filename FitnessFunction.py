@@ -5,15 +5,16 @@ from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors
 import Utility
 import proxy_a_distance as ADistance
 import sys
+import Core
 
-srcWeight = 0.1
-margWeight= 0.0
-condWeight = 0.9
+srcWeight = 0.0
+margWeight= 0.6
+condWeight = 0.4
 
 condVersion = 1 #1-gecco. 2-wrapper, 3-conditional MMD
 
 
-def domainDifferece(src_feature, src_label, classifier, tarU_feature, tarU_soft_label = None, tarL_feature=None, tarL_label=None):
+def domainDifferece(src_feature, src_label, classifier, tarU_feature, tarL_feature=None, tarL_label=None):
 
     if margWeight==0:
         diff_marg=0
@@ -33,26 +34,26 @@ def domainDifferece(src_feature, src_label, classifier, tarU_feature, tarU_soft_
             else:
                 tar_err = conditionalDistributionDifference(src_feature=src_feature, src_label=src_label,
                                                             classifier=classifier,
-                                                            tar_feature=tarU_feature, tar_label=tarU_soft_label)
+                                                            tar_feature=tarU_feature)
         else:
             tar_err = classificationError(training_feature=src_feature, training_label=src_label,
                                           classifier=classifier,
                                           testing_feature=tarL_feature, testing_label=tarL_label)
 
-    if srcWeight != 0:
-        src_err = nFoldClassificationError(features=src_feature, labels=src_label,
-                                           classifier=classifier, n_fold=3)
-    else:
-        src_err = 0
+    # if srcWeight != 0:
+    src_err = nFoldClassificationError(features=src_feature, labels=src_label,
+                                           classifier=classifier, n_fold=10)
+    # else:
+    #     src_err = 0
 
     return src_err, diff_marg, tar_err
 
 
 # fitness function with 3 components: marginal, source error, classification error
-def fitnessFunction(src_feature, src_label, tarU_feature, tarU_soft_label, classifier, tarL_feature=None, tarL_label=None):
+def fitnessFunction(src_feature, src_label, tarU_feature, classifier, tarL_feature=None, tarL_label=None):
     src_err, diff_marg, tar_err = domainDifferece(src_feature=src_feature, src_label=src_label,
                                                   classifier=classifier,
-                                                  tarU_feature=tarU_feature, tarU_soft_label=tarU_soft_label,
+                                                  tarU_feature=tarU_feature,
                                                   tarL_feature=tarL_feature, tarL_label=tarL_label)
     return srcWeight * src_err + condWeight * tar_err + margWeight * diff_marg, src_err, diff_marg, tar_err
 
@@ -100,7 +101,7 @@ def distributionDifference(source, target):
 
 
 # calculate the conditional distribution :
-def conditionalDistributionDifference(src_feature, src_label, classifier, tar_feature, tar_label):
+def conditionalDistributionDifference(src_feature, src_label, classifier, tar_feature, tar_label=None):
     # if label is none, we have to estimate the label using the current src label
     if tar_label is None:
         classifier.fit(src_feature, src_label)
@@ -134,8 +135,11 @@ def nFoldClassificationError(features, labels, classifier, n_fold):
     return error
 
 
-def setWeight(src_feature, src_label, tarU_feature, tarU_label):
+def setWeight(src_feature, src_label, tarU_feature):
     global condWeight, margWeight,srcWeight
+    Core.classifier.fit(src_feature,src_label)
+    tarU_label = Core.classifier.predict(tarU_feature)
+
     margDiff = ADistance.proxy_a_distance(src_feature, tarU_feature)
 
     condDiff = 0
@@ -149,5 +153,5 @@ def setWeight(src_feature, src_label, tarU_feature, tarU_label):
     condDiff = condDiff/len(uniqueClass)
     condWeight = condDiff/(condDiff+margDiff)
     margWeight = margDiff/(condDiff+margDiff)
-    srcWeight = 1.0
+    srcWeight = 0.0
 

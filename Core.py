@@ -33,20 +33,15 @@ src_feature = features_new[0:len(src_feature), ]
 tarU_feature = features_new[len(src_feature): len(src_feature)+len(tarU_feature), ]
 tarL_feature = features_new[len(src_feature)+len(tarU_feature): len(src_feature)+len(tarU_feature)+len(tarL_feature), ]
 
+
 #src_feature, src_label = Utility.balanced_sample_maker(src_feature, src_label, sample_size=10)
 #tarL_feature, tarL_label = Utility.balanced_sample_maker(tarL_feature, tarL_label, sample_size=1)
 #tarU_feature, tarU_label = Utility.balanced_sample_maker(tarU_feature, tarU_label, sample_size=10)
 
 
-classifier = KNeighborsClassifier(n_neighbors=1, algorithm='brute')
+classifier = \
+KNeighborsClassifier(n_neighbors=1, algorithm='brute')
 # LinearSVC(random_state=1617)
-# KNeighborsClassifier(n_neighbors=1, algorithm='brute')
-# LinearSVC(random_state=1617)
-
-
-# now creating the pseudo-label
-classifier.fit(src_feature, src_label)
-tarU_soft_label = classifier.predict(tarU_feature)
 
 # create a feature selection
 #sfs = SFS(classifier, k_features=no_features/10, forward=True, floating=False, scoring='accuracy')

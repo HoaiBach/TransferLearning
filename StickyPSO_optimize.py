@@ -67,6 +67,38 @@ def updateParticle(part, best):
             # if the bit is not flipped, update stickiness
             part.stk[i] = max(0, part.stk[i] - 1.0/ustks)
 
+def setWeight():
+
+    # Make sure that all the weights are not 0, so all components are evaluated
+    FitnessFunction.srcWeight = 0.3
+    FitnessFunction.margWeight = 0.3
+    FitnessFunction.condWeight = 0.3
+
+    if SUPERVISED:
+        src_err, diff_marg, tar_err = FitnessFunction.domainDifferece(src_feature=Core.src_feature, src_label=Core.src_label,
+                                                                      classifier=Core.classifier,
+                                                                      tarU_feature=Core.tarU_feature,
+                                                                      tarL_feature=Core.tarL_feature, tarL_label=Core.tarL_label)
+    else:
+        src_err, diff_marg, tar_err = FitnessFunction.domainDifferece(src_feature=Core.src_feature, src_label=Core.src_label,
+                                                                      classifier=Core.classifier,
+                                                                      tarU_feature=Core.tarU_feature)
+
+    if diff_marg == 0:
+        FitnessFunction.margWeight = 0
+    else:
+        FitnessFunction.margWeight = 1.0/diff_marg
+
+    if tar_err == 0:
+        FitnessFunction.condWeight = 0
+    else:
+        FitnessFunction.condWeight = 1.0 / tar_err
+
+    if src_err == 0:
+        FitnessFunction.srcWeight = 0
+    else:
+        FitnessFunction.srcWeight = 1.0/src_err
+
 
 def evaluate(particle):
     # Find all selected features
@@ -91,37 +123,6 @@ toolbox.register("population", tools.initRepeat, list, toolbox.particle)
 toolbox.register("update", updateParticle)
 toolbox.register("evaluate", evaluate)
 
-
-def setWeight():
-
-    # Make sure that all the weights are not 0, so all components are evaluated
-    FitnessFunction.srcWeight = 0.1
-    FitnessFunction.margWeight = 0.0
-    FitnessFunction.condWeight = 0.9
-
-    if SUPERVISED:
-        src_err, diff_marg, tar_err = FitnessFunction.domainDifferece(src_feature=Core.src_feature, src_label=Core.src_label,
-                                                                      classifier=Core.classifier, tarU_feature=Core.tarU_feature,
-                                                                      tarL_feature=Core.tarL_feature, tarL_label=Core.tarL_label)
-    else:
-        src_err, diff_marg, tar_err = FitnessFunction.domainDifferece(src_feature=Core.src_feature, src_label=Core.src_label,
-                                                                      classifier=Core.classifier, tarU_feature=Core.tarU_feature)
-
-    if diff_marg == 0:
-        FitnessFunction.margWeight = 0
-    else:
-        FitnessFunction.margWeight = 1.0 / diff_marg
-
-    if tar_err == 0:
-        FitnessFunction.condWeight = 0
-    else:
-        FitnessFunction.condWeight = 1.0 / tar_err
-
-    if src_err == 0:
-        FitnessFunction.srcWeight = 0
-    else:
-        FitnessFunction.srcWeight = 1.0/src_err
-
 # args[1] refers to which measure is used for diffCond
 #  it defines which diffCond 1-gecco, 2-wrapper, 3-mmd
 def main(args):
@@ -129,8 +130,6 @@ def main(args):
 
     run_index = int(args[0])
     random.seed(1617 ** 2 * run_index)
-    filename = "iteration"+str(args[0])+".txt"
-    file = open(filename, 'w+')
 
     time_start = time.clock()
 
@@ -142,16 +141,21 @@ def main(args):
     #else:
     #    SUPERVISED = True
 
-    cond_index = int(args[1])
+    cond_index = 1
     FitnessFunction.condVersion = cond_index
 
-    # Set the weight for each components in the fitness function
-    # FitnessFunction.setWeight(src_feature=Core.src_feature, src_label=Core.src_label,
-    #                          tarU_feature=Core.tarU_feature)
+    # set weight for normalization
     setWeight()
-    FitnessFunction.margWeight = 0.0
-    FitnessFunction.condWeight = 1.0
-    FitnessFunction.srcWeight = 0.0
+
+    # after normalization, we assign a weight to that normalized values
+    weight = int(args[1])/10.0
+    FitnessFunction.margWeight = weight*FitnessFunction.margWeight
+    FitnessFunction.condWeight = (1.0-weight)*FitnessFunction.condWeight
+    FitnessFunction.srcWeight  = 0.0
+
+
+    filename = args[0]+"_"+args[1]+".txt"
+    file = open("Optimize/"+filename, 'w+')
 
     # Initialize population and the gbest
     pop = toolbox.population(n=NPART)
@@ -168,7 +172,6 @@ def main(args):
                                         FitnessFunction.condVersion))
 
     for g in range(NGEN):
-        print(g)
         toWrite += ("=====Gen %d=====\n" % g)
 
         for part in pop:
@@ -208,20 +211,16 @@ def main(args):
         tarL_feature = Core.tarL_feature[:, indices]
         if SUPERVISED:
             src_err, diff_marg, tar_err = FitnessFunction.domainDifferece(src_feature=src_feature, src_label=Core.src_label,
-                                                                          classifier=Core.classifier, tarU_feature=tarU_feature,
+                                                                          classifier=Core.classifier,
+                                                                          tarU_feature=tarU_feature,
                                                                           tarL_feature=tarL_feature, tarL_label=Core.tarL_label)
         else:
             src_err, diff_marg, tar_err = FitnessFunction.domainDifferece(src_feature=src_feature, src_label=Core.src_label,
-                                                                          classifier=Core.classifier, tarU_feature=tarU_feature)
+                                                                          classifier=Core.classifier,
+                                                                          tarU_feature=tarU_feature)
 
         toWrite += ("  Source Error: %f \n  Diff Marg: %f \n  Target Error: %f \n" %(src_err, diff_marg, tar_err))
         toWrite += ("  Fitness function of real best: %f\n" % best.fitness.values[0])
-        acc = 1.0 - FitnessFunction.classificationError(training_feature=src_feature, training_label=Core.src_label,
-                                                        classifier=Core.classifier,
-                                                        testing_feature=tarU_feature, testing_label=Core.tarU_label)
-        toWrite += ("  Accuracy on unlabel target: " + str(acc) + "\n")
-        toWrite += "  Position:"+str(best)+"\n"
-
 
         # update the parameters
         i_stick = is_up - (is_up - is_low)*(g+1)/NGEN
@@ -229,43 +228,13 @@ def main(args):
         i_pbest = pg_rate*i_gbest
         ustks   = ustks_low + (ustks_up-ustks_low)*(g+1)/NGEN
 
-        # Update the pseudo label (only when the cond_index is equal to 3)
-        # if g %20 ==0:
-        #     Core.classifier.fit(src_feature, Core.src_label)
-        #     print(Core.tarU_soft_label)
-        #     Core.tarU_soft_label = Core.classifier.predict(tarU_feature)
-        #     print(Core.tarU_soft_label)
-        #     setWeight()
-        # if cond_index == 3 & g % 10==0:
-        #     Core.classifier.fit(src_feature, Core.src_label)
-        #     Core.tarU_soft_label = Core.classifier.predict(tarU_feature)
-        #     FitnessFunction.setWeight(src_feature, Core.src_label, tarU_feature, Core.tarU_soft_label)
-        #     # Need to update the fitness value of best and pbest again
-        #     best.fitness.values = FitnessFunction.fitnessFunction(src_feature, Core.src_label,
-        #                                                           tarU_feature, Core.tarU_soft_label,
-        #                                                           Core.classifier),
-        #     for part in pop:
-        #         indices = [index for index, entry in enumerate(part.best) if entry == 1.0]
-        #         p_src_feature = Core.src_feature[:, indices]
-        #         p_tarU_feature = Core.tarU_feature[:, indices]
-        #         part.best.fitness.values = FitnessFunction.fitnessFunction(p_src_feature, Core.src_label,
-        #                                                                    p_tarU_feature, Core.tarU_soft_label,
-        #                                                                    Core.classifier),
-
     time_elapsed = (time.clock() - time_start)
     toWrite += "----Final -----\n"
     indices = [index for index, entry in enumerate(best) if entry == 1.0]
     src_feature = Core.src_feature[:, indices]
     tarU_feature = Core.tarU_feature[:, indices]
-    acc = 1.0 - FitnessFunction.classificationError(training_feature=src_feature, training_label=Core.src_label,
-                                                    classifier=Core.classifier,
-                                                    testing_feature=tarU_feature, testing_label=Core.tarU_label)
-    toWrite += ("Accuracy on unlabel target: " + str(acc) + "\n")
-    toWrite += ("Accuracy on the target (No TL): %f\n" % (
-                    1.0 - FitnessFunction.classificationError(training_feature=Core.src_feature, training_label=Core.src_label,
-                                                              classifier=Core.classifier,
-                                                              testing_feature=Core.tarU_feature, testing_label=Core.tarU_label)))
-    toWrite += ("Computation time: %f\n" % time_elapsed)
+    src_err = FitnessFunction.nFoldClassificationError(src_feature, Core.src_label, Core.classifier, 10)
+    toWrite += ("Accuracy on source: " + str(1-src_err) + "\n")
     toWrite += ("Number of features: %d\n" % len(indices))
     toWrite += str(best)
 
@@ -273,6 +242,11 @@ def main(args):
     file.close()
 
 
+# 1st: run index, 2nd: weight
 if __name__ == "__main__":
     import sys
+    # for run in range(1,3,1):
+    #     for x in range(0,11,2):
+    #         print(run,x)
+    #         main((str(run), str(x/10.0)))
     main(sys.argv[1:])
