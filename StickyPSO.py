@@ -10,27 +10,28 @@ from deap import creator
 from deap import tools
 import Core
 import FitnessFunction
-import  time
+import time
+from sklearn.svm import LinearSVC
+from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier
 
+# Setting for SBPSO
 NBIT = Core.no_features
 NGEN = 100
-NPART = NBIT if NBIT <100 else 100
+NPART = NBIT if NBIT < 100 else 100
 is_low = 0
-is_up  = 10.0/NBIT
+is_up = 10.0/NBIT
 ustks_low = NGEN/100.0
-ustks_up  = 8*NGEN/100.0
-pg_rate = 1.0
+ustks_up = 8*NGEN/100.0
+pg_rate = 2.0
 threshold = 0.6
 
 i_stick = is_up
 i_gbest = (1-i_stick)/(pg_rate+1)
 i_pbest = pg_rate * i_gbest
-
 ustks = ustks_low
 
 TEST = False
-
-SUPERVISED = False
 
 creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
 creator.create("Particle", list, fitness=creator.FitnessMin, stk=list, best=None)
@@ -42,7 +43,7 @@ def generate(size):
     return part
 
 
-def updateParticle(part, best):
+def update_particle(part, best):
     # find flipping probability
     stick_part = map(lambda x: i_stick*(1-x), part.stk)
     diff_pbest = map(operator.abs, map(operator.sub, part.best, part))
@@ -73,103 +74,79 @@ def evaluate(particle):
     indices = [index for index, entry in enumerate(particle) if entry == 1.0]
     # Build new dataset with selected features
     src_feature = Core.src_feature[:, indices]
-    tarU_feature = Core.tarU_feature[:, indices]
-    tarL_feature = Core.tarL_feature[:, indices]
+    tar_feature = Core.tar_feature[:, indices]
 
-    if SUPERVISED:
-        return FitnessFunction.fitnessFunction(src_feature=src_feature, src_label=Core.src_label,
-                                               tarU_feature=tarU_feature, classifier=Core.classifier,
-                                               tarL_feature=tarL_feature, tarL_label=Core.tarL_label)[0],
-    else:
-        return FitnessFunction.fitnessFunction(src_feature=src_feature, src_label=Core.src_label,
-                                               tarU_feature=tarU_feature, classifier=Core.classifier)[0],
+    return FitnessFunction.fitness_function(src_feature=src_feature, src_label=Core.src_label,
+                                            tar_feature=tar_feature, classifier=Core.classifier)[0],
 
 
 toolbox = base.Toolbox()
 toolbox.register("particle", generate, size=NBIT)
 toolbox.register("population", tools.initRepeat, list, toolbox.particle)
-toolbox.register("update", updateParticle)
+toolbox.register("update", update_particle)
 toolbox.register("evaluate", evaluate)
 
 
-def setWeight():
-
+def normalize_weight():
     # Make sure that all the weights are not 0, so all components are evaluated
-    FitnessFunction.srcWeight = 0.1
-    FitnessFunction.margWeight = 0.0
-    FitnessFunction.condWeight = 0.9
+    FitnessFunction.srcWeight = 0.3
+    FitnessFunction.margWeight = 0.3
+    FitnessFunction.tarWeight = 0.3
 
-    if SUPERVISED:
-        src_err, diff_marg, tar_err = FitnessFunction.domainDifferece(src_feature=Core.src_feature, src_label=Core.src_label,
-                                                                      classifier=Core.classifier, tarU_feature=Core.tarU_feature,
-                                                                      tarL_feature=Core.tarL_feature, tarL_label=Core.tarL_label)
-    else:
-        src_err, diff_marg, tar_err = FitnessFunction.domainDifferece(src_feature=Core.src_feature, src_label=Core.src_label,
-                                                                      classifier=Core.classifier, tarU_feature=Core.tarU_feature)
+    src_err, diff_marg, tar_err = \
+        FitnessFunction.domain_differece(src_feature=Core.src_feature, src_label=Core.src_label,
+                                         classifier=Core.classifier, tar_feature=Core.tar_feature)
 
     if diff_marg == 0:
         FitnessFunction.margWeight = 0
     else:
-        FitnessFunction.margWeight = 1.0 / diff_marg
+        FitnessFunction.margWeight = 1.0 / abs(diff_marg)
 
     if tar_err == 0:
-        FitnessFunction.condWeight = 0
+        FitnessFunction.tarWeight = 0
     else:
-        FitnessFunction.condWeight = 1.0 / tar_err
+        FitnessFunction.tarWeight = 1.0 / abs(tar_err)
 
     if src_err == 0:
         FitnessFunction.srcWeight = 0
     else:
-        FitnessFunction.srcWeight = 1.0/src_err
+        FitnessFunction.srcWeight = 1.0/abs(src_err)
 
-# args[1] refers to which measure is used for diffCond
-#  it defines which diffCond 1-gecco, 2-wrapper, 3-mmd
+
+# args[0]: run_index
+# args[1]: diff_ST: 1-domain classification, 2-MMD
+# args[2]: tarErr: 1-Gecco, 2-pseudo with classification, 3-pseudo with silhouette, 4-pseudo with MMDs
 def main(args):
-    global i_stick, i_pbest, i_gbest, ustks, SUPERVISED
+    global i_stick, i_pbest, i_gbest, ustks
 
     run_index = int(args[0])
     random.seed(1617 ** 2 * run_index)
+
+    marg_index = int(args[1])
+    tar_index = int(args[2])
+    FitnessFunction.margVersion = marg_index
+    FitnessFunction.tarVersion = tar_index
+
     filename = "iteration"+str(args[0])+".txt"
-    file = open(filename, 'w+')
+    output_file = open(filename, 'w+')
 
     time_start = time.clock()
 
-    SUPERVISED = False
-    #supervised = int(args[1])
-
-    #if supervised == 0:
-    #    SUPERVISED = False
-    #else:
-    #    SUPERVISED = True
-
-    cond_index = int(args[1])
-    FitnessFunction.condVersion = cond_index
-
     # Set the weight for each components in the fitness function
-    # FitnessFunction.setWeight(src_feature=Core.src_feature, src_label=Core.src_label,
-    #                          tarU_feature=Core.tarU_feature)
-    setWeight()
-    FitnessFunction.margWeight = 0.0
-    FitnessFunction.condWeight = 1.0
-    FitnessFunction.srcWeight = 0.0
+    normalize_weight()
 
     # Initialize population and the gbest
     pop = toolbox.population(n=NPART)
     best = None
 
-    toWrite = ("Supervised: %r \n" \
-              "Source weight: %f\n" \
-              "Diff source and target weight: %f\n" \
-              "Target weight: %g\n" \
-              "Conditional version: %d\n" % (SUPERVISED,
-                                        FitnessFunction.srcWeight,
-                                        FitnessFunction.margWeight,
-                                        FitnessFunction.condWeight,
-                                        FitnessFunction.condVersion))
+    to_write = ("Core classifier: %s\nSource weight: %f\nDiff source and target weight: %f\n"
+                "Target weight: %g\nMarginal version: %d\nTarget version: %d\n"
+                % (str(Core.classifier), FitnessFunction.srcWeight,
+                   FitnessFunction.margWeight, FitnessFunction.tarWeight,
+                   FitnessFunction.margVersion, FitnessFunction.tarVersion))
 
     for g in range(NGEN):
-        print(g)
-        toWrite += ("=====Gen %d=====\n" % g)
+        to_write += ("=====Gen %d=====\n" % g)
 
         for part in pop:
             # Evaluate all particles
@@ -185,17 +162,16 @@ def main(args):
                 best.fitness.values = part.fitness.values
 
         if TEST:
-            print("is=", i_stick, "ip=", i_pbest, "ig=", i_gbest, "ustks=", ustks )
+            print("is=", i_stick, "ip=", i_pbest, "ig=", i_gbest, "ustks=", ustks)
             print("best=", best)
             print(best.fitness.values)
             print("\n")
             for i, part in enumerate(pop):
                 print("Particle %d: " % i)
-                print("Particle position:",part)
-                print("Particle pbest:",part.best)
-                print("Particle stickiness:",part.stk)
+                print("Particle position:", part)
+                print("Particle pbest:", part.best)
+                print("Particle stickiness:", part.stk)
                 print("\n")
-
 
         # now update the position of each particle
         for part in pop:
@@ -204,73 +180,78 @@ def main(args):
         # Gather all the fitness components of the gbest and print the stats
         indices = [index for index, entry in enumerate(best) if entry == 1.0]
         src_feature = Core.src_feature[:, indices]
-        tarU_feature = Core.tarU_feature[:, indices]
-        tarL_feature = Core.tarL_feature[:, indices]
-        if SUPERVISED:
-            src_err, diff_marg, tar_err = FitnessFunction.domainDifferece(src_feature=src_feature, src_label=Core.src_label,
-                                                                          classifier=Core.classifier, tarU_feature=tarU_feature,
-                                                                          tarL_feature=tarL_feature, tarL_label=Core.tarL_label)
-        else:
-            src_err, diff_marg, tar_err = FitnessFunction.domainDifferece(src_feature=src_feature, src_label=Core.src_label,
-                                                                          classifier=Core.classifier, tarU_feature=tarU_feature)
+        tar_feature = Core.tar_feature[:, indices]
+        src_err, diff_marg, tar_err = \
+            FitnessFunction.domain_differece(src_feature=src_feature, src_label=Core.src_label,
+                                             classifier=Core.classifier, tar_feature=tar_feature)
 
-        toWrite += ("  Source Error: %f \n  Diff Marg: %f \n  Target Error: %f \n" %(src_err, diff_marg, tar_err))
-        toWrite += ("  Fitness function of real best: %f\n" % best.fitness.values[0])
-        acc = 1.0 - FitnessFunction.classificationError(training_feature=src_feature, training_label=Core.src_label,
-                                                        classifier=Core.classifier,
-                                                        testing_feature=tarU_feature, testing_label=Core.tarU_label)
-        toWrite += ("  Accuracy on unlabel target: " + str(acc) + "\n")
-        toWrite += "  Position:"+str(best)+"\n"
-
+        to_write += ("  Source Error: %f \n  Marginal Difference: %f \n  Target Error: %f \n"
+                     % (src_err, diff_marg, tar_err))
+        to_write += ("  Fitness function of real best: %f\n" % best.fitness.values[0])
+        acc = 1.0 - FitnessFunction.classification_error(training_feature=src_feature, training_label=Core.src_label,
+                                                         classifier=Core.classifier,
+                                                         testing_feature=tar_feature, testing_label=Core.tar_label)
+        to_write += ("  Accuracy on unlabel target: " + str(acc) + "\n")
+        to_write += "  Position:"+str(best)+"\n"
 
         # update the parameters
         i_stick = is_up - (is_up - is_low)*(g+1)/NGEN
         i_gbest = (1-i_stick)/(pg_rate+1)
         i_pbest = pg_rate*i_gbest
-        ustks   = ustks_low + (ustks_up-ustks_low)*(g+1)/NGEN
-
-        # Update the pseudo label (only when the cond_index is equal to 3)
-        # if g %20 ==0:
-        #     Core.classifier.fit(src_feature, Core.src_label)
-        #     print(Core.tarU_soft_label)
-        #     Core.tarU_soft_label = Core.classifier.predict(tarU_feature)
-        #     print(Core.tarU_soft_label)
-        #     setWeight()
-        # if cond_index == 3 & g % 10==0:
-        #     Core.classifier.fit(src_feature, Core.src_label)
-        #     Core.tarU_soft_label = Core.classifier.predict(tarU_feature)
-        #     FitnessFunction.setWeight(src_feature, Core.src_label, tarU_feature, Core.tarU_soft_label)
-        #     # Need to update the fitness value of best and pbest again
-        #     best.fitness.values = FitnessFunction.fitnessFunction(src_feature, Core.src_label,
-        #                                                           tarU_feature, Core.tarU_soft_label,
-        #                                                           Core.classifier),
-        #     for part in pop:
-        #         indices = [index for index, entry in enumerate(part.best) if entry == 1.0]
-        #         p_src_feature = Core.src_feature[:, indices]
-        #         p_tarU_feature = Core.tarU_feature[:, indices]
-        #         part.best.fitness.values = FitnessFunction.fitnessFunction(p_src_feature, Core.src_label,
-        #                                                                    p_tarU_feature, Core.tarU_soft_label,
-        #                                                                    Core.classifier),
+        ustks = ustks_low + (ustks_up-ustks_low)*(g+1)/NGEN
 
     time_elapsed = (time.clock() - time_start)
-    toWrite += "----Final -----\n"
+    to_write += "----Final -----\n"
     indices = [index for index, entry in enumerate(best) if entry == 1.0]
     src_feature = Core.src_feature[:, indices]
-    tarU_feature = Core.tarU_feature[:, indices]
-    acc = 1.0 - FitnessFunction.classificationError(training_feature=src_feature, training_label=Core.src_label,
-                                                    classifier=Core.classifier,
-                                                    testing_feature=tarU_feature, testing_label=Core.tarU_label)
-    toWrite += ("Accuracy on unlabel target: " + str(acc) + "\n")
-    toWrite += ("Accuracy on the target (No TL): %f\n" % (
-                    1.0 - FitnessFunction.classificationError(training_feature=Core.src_feature, training_label=Core.src_label,
-                                                              classifier=Core.classifier,
-                                                              testing_feature=Core.tarU_feature, testing_label=Core.tarU_label)))
-    toWrite += ("Computation time: %f\n" % time_elapsed)
-    toWrite += ("Number of features: %d\n" % len(indices))
-    toWrite += str(best)
+    tar_feature = Core.tar_feature[:, indices]
 
-    file.write(toWrite)
-    file.close()
+    acc = 1.0 - FitnessFunction.classification_error(training_feature=src_feature, training_label=Core.src_label,
+                                                     classifier=Core.classifier,
+                                                     testing_feature=tar_feature, testing_label=Core.tar_label)
+    to_write += ("Accuracy of the core classifier: " + str(acc) + "\n")
+    to_write += ("Accuracy on the target (No TL) (core classifier): %f\n\n" % (
+                    1.0 - FitnessFunction.classification_error(training_feature=Core.src_feature,
+                                                               training_label=Core.src_label,
+                                                               classifier=Core.classifier,
+                                                               testing_feature=Core.tar_feature,
+                                                               testing_label=Core.tar_label)))
+    new_classifier = LinearSVC(random_state=1617)
+    acc = 1.0 - FitnessFunction.classification_error(training_feature=src_feature, training_label=Core.src_label,
+                                                     classifier=new_classifier,
+                                                     testing_feature=tar_feature, testing_label=Core.tar_label)
+    to_write += ("Accuracy of the Linear SVM classifier: " + str(acc) + "\n")
+    to_write += ("Accuracy on the target (No TL) of Linear SVM: %f\n\n" % (
+            1.0 - FitnessFunction.classification_error(training_feature=Core.src_feature, training_label=Core.src_label,
+                                                       classifier=new_classifier,
+                                                       testing_feature=Core.tar_feature, testing_label=Core.tar_label)))
+
+    new_classifier = DecisionTreeClassifier(random_state=1617)
+    acc = 1.0 - FitnessFunction.classification_error(training_feature=src_feature, training_label=Core.src_label,
+                                                     classifier=new_classifier,
+                                                     testing_feature=tar_feature, testing_label=Core.tar_label)
+    to_write += ("Accuracy of the Linear DT classifier: " + str(acc) + "\n")
+    to_write += ("Accuracy on the target (No TL) of DT: %f\n\n" % (
+            1.0 - FitnessFunction.classification_error(training_feature=Core.src_feature, training_label=Core.src_label,
+                                                       classifier=new_classifier,
+                                                       testing_feature=Core.tar_feature, testing_label=Core.tar_label)))
+
+    new_classifier = GaussianNB()
+    acc = 1.0 - FitnessFunction.classification_error(training_feature=src_feature, training_label=Core.src_label,
+                                                     classifier=new_classifier,
+                                                     testing_feature=tar_feature, testing_label=Core.tar_label)
+    to_write += ("Accuracy of the Linear NB classifier: " + str(acc) + "\n")
+    to_write += ("Accuracy on the target (No TL) of NB: %f\n\n" % (
+            1.0 - FitnessFunction.classification_error(training_feature=Core.src_feature, training_label=Core.src_label,
+                                                       classifier=new_classifier,
+                                                       testing_feature=Core.tar_feature, testing_label=Core.tar_label)))
+
+    to_write += ("Computation time: %f\n" % time_elapsed)
+    to_write += ("Number of features: %d\n" % len(indices))
+    to_write += str(best)
+
+    output_file.write(to_write)
+    output_file.close()
 
 
 if __name__ == "__main__":

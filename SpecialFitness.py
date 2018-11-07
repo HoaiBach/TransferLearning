@@ -130,20 +130,15 @@ class SpecialFitness(object):
         return (self.wvalues[0] <= other.wvalues[0]) and (se_ratio >= 1.0)
 
     def __lt__(self, other):
-        existSmaller = False
-        for a,b in zip(self.wvalues, other.wvalues):
-            if a > b:
-                return False
-            elif a < b:
-                existSmaller = True
-        return existSmaller
-        #no_weights = len(self.wvalues)-1 #ignore the first as it is sum
-        #count = 0.0
-        #for index in range(1, no_weights+1):
-        #    if self.wvalues[index] <= other.wvalues[index]:
-        #        count = count+1.0
-        #s_ratio = count/no_weights
-        #return (self.wvalues[0] < other.wvalues[0]) and (s_ratio >= 1)
+        return self.wvalues[0] < other.wvalues[0] and self.wvalues[1] <= other.wvalues[1]
+        # existSmaller = False
+        # for a,b in zip(self.wvalues[0:2], other.wvalues[0:2]):
+        #     if a > b:
+        #         return False
+        #     elif a < b:
+        #         existSmaller = True
+        # return existSmaller
+
 
     def __eq__(self, other):
         return self.wvalues == other.wvalues

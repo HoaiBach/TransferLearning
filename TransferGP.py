@@ -89,14 +89,14 @@ def evaluate(individual):
     tarL_feature = GPUtility.buildNewFeatures(Core.tarL_feature, funcs)
 
     if SUPERVISED:
-        return FitnessFunction.fitnessFunction(src_feature=src_feature, src_label=Core.src_label,
-                                               tarU_feature=tarU_feature,tarU_soft_label= Core.tarU_soft_label,
-                                               classifier=Core.classifier,
-                                               tarL_feature=tarL_feature, tarL_label=Core.tarL_label),
+        return FitnessFunction.fitness_function(src_feature=src_feature, src_label=Core.src_label,
+                                                tarU_feature=tarU_feature, tarU_soft_label= Core.tarU_soft_label,
+                                                classifier=Core.classifier,
+                                                tarL_feature=tarL_feature, tarL_label=Core.tarL_label),
     else:
-        return FitnessFunction.fitnessFunction(src_feature=src_feature, src_label=Core.src_label,
-                                               tarU_feature=tarU_feature, tarU_soft_label=Core.tarU_soft_label,
-                                               classifier=Core.classifier),
+        return FitnessFunction.fitness_function(src_feature=src_feature, src_label=Core.src_label,
+                                                tarU_feature=tarU_feature, tarU_soft_label=Core.tarU_soft_label,
+                                                classifier=Core.classifier),
 
 toolbox.register("evaluate", evaluate)
 
@@ -106,17 +106,17 @@ toolbox.decorate("mutate", gp.staticLimit(key=operator.attrgetter("height"), max
 
 def setWeight():
     if SUPERVISED:
-        src_err, diff_marg, tar_err = FitnessFunction.domainDifferece(src_feature=Core.src_feature, src_label=Core.src_label,
-                                                                      classifier=Core.classifier,
-                                                                      tarU_feature=Core.tarU_feature, tarU_soft_label=Core.tarU_soft_label,
-                                                                      tarL_feature=Core.tarL_feature, tarL_label=Core.tarL_label)
+        src_err, diff_marg, tar_err = FitnessFunction.domain_differece(src_feature=Core.src_feature, src_label=Core.src_label,
+                                                                       classifier=Core.classifier,
+                                                                       tarU_feature=Core.tarU_feature, tarU_soft_label=Core.tarU_soft_label,
+                                                                       tarL_feature=Core.tarL_feature, tarL_label=Core.tarL_label)
     else:
-        src_err, diff_marg, tar_err = FitnessFunction.domainDifferece(src_feature=Core.src_feature, src_label=Core.src_label,
-                                                                      classifier=Core.classifier,
-                                                                      tarU_feature=Core.tarU_feature, tarU_soft_label=Core.tarU_soft_label)
+        src_err, diff_marg, tar_err = FitnessFunction.domain_differece(src_feature=Core.src_feature, src_label=Core.src_label,
+                                                                       classifier=Core.classifier,
+                                                                       tarU_feature=Core.tarU_feature, tarU_soft_label=Core.tarU_soft_label)
 
     FitnessFunction.margWeight= 1.0 / diff_marg
-    FitnessFunction.condWeight = 1.0 / tar_err
+    FitnessFunction.tarWeight = 1.0 / tar_err
     FitnessFunction.srcWeight = 1.0/src_err
 
 def main(args):
@@ -169,7 +169,7 @@ def main(args):
               "Target weight: %g \n" % (SUPERVISED, NO_SUB_IND,
                                         FitnessFunction.srcWeight,
                                         FitnessFunction.margWeight,
-                                        FitnessFunction.condWeight)
+                                        FitnessFunction.tarWeight)
 
     for gen in range(NGEN):
         print(gen)
@@ -236,20 +236,20 @@ def main(args):
         tarL_feature = GPUtility.buildNewFeatures(Core.tarL_feature, funcs)
 
         if SUPERVISED:
-            src_err, diff_marg, tar_err = FitnessFunction.domainDifferece(src_feature=src_feature, src_label=Core.src_label,
-                                                                          classifier=Core.classifier,
-                                                                          tarU_feature=tarU_feature, tarU_soft_label=Core.tarU_soft_label,
-                                                                          tarL_feature=tarL_feature, tarL_label=Core.tarL_label)
+            src_err, diff_marg, tar_err = FitnessFunction.domain_differece(src_feature=src_feature, src_label=Core.src_label,
+                                                                           classifier=Core.classifier,
+                                                                           tarU_feature=tarU_feature, tarU_soft_label=Core.tarU_soft_label,
+                                                                           tarL_feature=tarL_feature, tarL_label=Core.tarL_label)
         else:
-            src_err, diff_marg, tar_err = FitnessFunction.domainDifferece(src_feature=src_feature, src_label=Core.src_label,
-                                                                          classifier=Core.classifier,
-                                                                          tarU_feature=tarU_feature, tarU_soft_label=Core.tarU_soft_label)
+            src_err, diff_marg, tar_err = FitnessFunction.domain_differece(src_feature=src_feature, src_label=Core.src_label,
+                                                                           classifier=Core.classifier,
+                                                                           tarU_feature=tarU_feature, tarU_soft_label=Core.tarU_soft_label)
 
         towrite = towrite + ("  Source Error: %f \n  Diff Marg: %f \n  Target Error: %f \n" %(src_err, diff_marg, tar_err))
 
-        acc = 1.0 - FitnessFunction.classificationError(training_feature=src_feature, training_label=Core.src_label,
-                                                        classifier=Core.classifier,
-                                                        testing_feature=tarU_feature, testing_label=Core.tarU_label)
+        acc = 1.0 - FitnessFunction.classification_error(training_feature=src_feature, training_label=Core.src_label,
+                                                         classifier=Core.classifier,
+                                                         testing_feature=tarU_feature, testing_label=Core.tarU_label)
         towrite = towrite + ("  Accuracy on unlabel target: "+str(acc) + "\n")
 
         # Update the pseudo label and weight
@@ -266,14 +266,14 @@ def main(args):
     funcs = [toolbox.compile(expr=tree) for tree in bestInd]
     src_feature = GPUtility.buildNewFeatures(Core.src_feature, funcs)
     tarU_feature = GPUtility.buildNewFeatures(Core.tarU_feature, funcs)
-    acc = 1.0 - FitnessFunction.classificationError(training_feature=src_feature, training_label=Core.src_label,
-                                                    classifier=Core.classifier,
-                                                    testing_feature=tarU_feature, testing_label=Core.tarU_label)
+    acc = 1.0 - FitnessFunction.classification_error(training_feature=src_feature, training_label=Core.src_label,
+                                                     classifier=Core.classifier,
+                                                     testing_feature=tarU_feature, testing_label=Core.tarU_label)
     towrite = towrite + ("Accuracy on the target (TL): %f\n" % acc)
     towrite = towrite + "Accuracy on the target (No TL): %f\n" % (
-                    1.0 - FitnessFunction.classificationError(training_feature=Core.src_feature, training_label=Core.src_label,
-                                                              classifier=Core.classifier,
-                                                              testing_feature=Core.tarU_feature, testing_label=Core.tarU_label))
+                    1.0 - FitnessFunction.classification_error(training_feature=Core.src_feature, training_label=Core.src_label,
+                                                               classifier=Core.classifier,
+                                                               testing_feature=Core.tarU_feature, testing_label=Core.tarU_label))
 
     towrite = towrite + ("Computation time: %f\n" % time_elapsed)
     towrite = towrite + ("Number of features: %d\n" % len(bestInd))

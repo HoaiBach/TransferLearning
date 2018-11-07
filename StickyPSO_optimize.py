@@ -72,17 +72,17 @@ def setWeight():
     # Make sure that all the weights are not 0, so all components are evaluated
     FitnessFunction.srcWeight = 0.3
     FitnessFunction.margWeight = 0.3
-    FitnessFunction.condWeight = 0.3
+    FitnessFunction.tarWeight = 0.3
 
     if SUPERVISED:
-        src_err, diff_marg, tar_err = FitnessFunction.domainDifferece(src_feature=Core.src_feature, src_label=Core.src_label,
-                                                                      classifier=Core.classifier,
-                                                                      tarU_feature=Core.tarU_feature,
-                                                                      tarL_feature=Core.tarL_feature, tarL_label=Core.tarL_label)
+        src_err, diff_marg, tar_err = FitnessFunction.domain_differece(src_feature=Core.src_feature, src_label=Core.src_label,
+                                                                       classifier=Core.classifier,
+                                                                       tarU_feature=Core.tarU_feature,
+                                                                       tarL_feature=Core.tarL_feature, tarL_label=Core.tarL_label)
     else:
-        src_err, diff_marg, tar_err = FitnessFunction.domainDifferece(src_feature=Core.src_feature, src_label=Core.src_label,
-                                                                      classifier=Core.classifier,
-                                                                      tarU_feature=Core.tarU_feature)
+        src_err, diff_marg, tar_err = FitnessFunction.domain_differece(src_feature=Core.src_feature, src_label=Core.src_label,
+                                                                       classifier=Core.classifier,
+                                                                       tarU_feature=Core.tarU_feature)
 
     if diff_marg == 0:
         FitnessFunction.margWeight = 0
@@ -90,9 +90,9 @@ def setWeight():
         FitnessFunction.margWeight = 1.0/diff_marg
 
     if tar_err == 0:
-        FitnessFunction.condWeight = 0
+        FitnessFunction.tarWeight = 0
     else:
-        FitnessFunction.condWeight = 1.0 / tar_err
+        FitnessFunction.tarWeight = 1.0 / tar_err
 
     if src_err == 0:
         FitnessFunction.srcWeight = 0
@@ -109,12 +109,12 @@ def evaluate(particle):
     tarL_feature = Core.tarL_feature[:, indices]
 
     if SUPERVISED:
-        return FitnessFunction.fitnessFunction(src_feature=src_feature, src_label=Core.src_label,
-                                               tarU_feature=tarU_feature, classifier=Core.classifier,
-                                               tarL_feature=tarL_feature, tarL_label=Core.tarL_label)[0],
+        return FitnessFunction.fitness_function(src_feature=src_feature, src_label=Core.src_label,
+                                                tarU_feature=tarU_feature, classifier=Core.classifier,
+                                                tarL_feature=tarL_feature, tarL_label=Core.tarL_label)[0],
     else:
-        return FitnessFunction.fitnessFunction(src_feature=src_feature, src_label=Core.src_label,
-                                               tarU_feature=tarU_feature, classifier=Core.classifier)[0],
+        return FitnessFunction.fitness_function(src_feature=src_feature, src_label=Core.src_label,
+                                                tarU_feature=tarU_feature, classifier=Core.classifier)[0],
 
 
 toolbox = base.Toolbox()
@@ -142,16 +142,16 @@ def main(args):
     #    SUPERVISED = True
 
     cond_index = 1
-    FitnessFunction.condVersion = cond_index
+    FitnessFunction.tarVersion = cond_index
 
     # set weight for normalization
-    setWeight()
+    # setWeight()
 
     # after normalization, we assign a weight to that normalized values
-    weight = int(args[1])/10.0
-    FitnessFunction.margWeight = weight*FitnessFunction.margWeight
-    FitnessFunction.condWeight = (1.0-weight)*FitnessFunction.condWeight
-    FitnessFunction.srcWeight  = 0.0
+    # weight = int(args[1])/10.0
+    FitnessFunction.margWeight = 0.0 # weight*FitnessFunction.margWeight
+    FitnessFunction.tarWeight = 0.9 # (1.0-weight)*FitnessFunction.condWeight
+    FitnessFunction.srcWeight  = 0.1
 
 
     filename = args[0]+"_"+args[1]+".txt"
@@ -168,8 +168,8 @@ def main(args):
               "Conditional version: %d\n" % (SUPERVISED,
                                         FitnessFunction.srcWeight,
                                         FitnessFunction.margWeight,
-                                        FitnessFunction.condWeight,
-                                        FitnessFunction.condVersion))
+                                        FitnessFunction.tarWeight,
+                                        FitnessFunction.tarVersion))
 
     for g in range(NGEN):
         toWrite += ("=====Gen %d=====\n" % g)
@@ -210,14 +210,14 @@ def main(args):
         tarU_feature = Core.tarU_feature[:, indices]
         tarL_feature = Core.tarL_feature[:, indices]
         if SUPERVISED:
-            src_err, diff_marg, tar_err = FitnessFunction.domainDifferece(src_feature=src_feature, src_label=Core.src_label,
-                                                                          classifier=Core.classifier,
-                                                                          tarU_feature=tarU_feature,
-                                                                          tarL_feature=tarL_feature, tarL_label=Core.tarL_label)
+            src_err, diff_marg, tar_err = FitnessFunction.domain_differece(src_feature=src_feature, src_label=Core.src_label,
+                                                                           classifier=Core.classifier,
+                                                                           tarU_feature=tarU_feature,
+                                                                           tarL_feature=tarL_feature, tarL_label=Core.tarL_label)
         else:
-            src_err, diff_marg, tar_err = FitnessFunction.domainDifferece(src_feature=src_feature, src_label=Core.src_label,
-                                                                          classifier=Core.classifier,
-                                                                          tarU_feature=tarU_feature)
+            src_err, diff_marg, tar_err = FitnessFunction.domain_differece(src_feature=src_feature, src_label=Core.src_label,
+                                                                           classifier=Core.classifier,
+                                                                           tarU_feature=tarU_feature)
 
         toWrite += ("  Source Error: %f \n  Diff Marg: %f \n  Target Error: %f \n" %(src_err, diff_marg, tar_err))
         toWrite += ("  Fitness function of real best: %f\n" % best.fitness.values[0])
@@ -233,7 +233,7 @@ def main(args):
     indices = [index for index, entry in enumerate(best) if entry == 1.0]
     src_feature = Core.src_feature[:, indices]
     tarU_feature = Core.tarU_feature[:, indices]
-    src_err = FitnessFunction.nFoldClassificationError(src_feature, Core.src_label, Core.classifier, 10)
+    src_err = FitnessFunction.nfold_classification_error(src_feature, Core.src_label, Core.classifier, 10)
     toWrite += ("Accuracy on source: " + str(1-src_err) + "\n")
     toWrite += ("Number of features: %d\n" % len(indices))
     toWrite += str(best)
