@@ -6,10 +6,11 @@ import Utility
 import ADistance
 import Core
 from sklearn.metrics import silhouette_score
+import math
 
-srcWeight = 1.0
-margWeight = 1.0
-tarWeight = 1.0
+srcWeight = 1
+margWeight = 1
+tarWeight = 1
 
 # margVersion: 1-domain classification, 2-MMD
 # tarVersion: 1-Gecco, 2-pseudo with classification, 3-pseudo with silhouette, 4-pseudo with MMDs
@@ -59,6 +60,7 @@ def domain_differece(src_feature, src_label, classifier, tar_feature):
 def fitness_function(src_feature, src_label, tar_feature, classifier):
     src_err, diff_marg, tar_err = domain_differece(src_feature=src_feature, src_label=src_label,
                                                    classifier=classifier, tar_feature=tar_feature)
+
     return srcWeight * src_err + tarWeight * tar_err + margWeight * diff_marg, src_err, diff_marg, tar_err
 
 
@@ -68,7 +70,11 @@ def fitness_function(src_feature, src_label, tar_feature, classifier):
 def pseudo_error_classification(training_feature, training_label, classifier, testing_feature):
     classifier.fit(training_feature, training_label)
     testing_pseudo = classifier.predict(testing_feature)
-    return nfold_classification_error(testing_feature, testing_pseudo, classifier, n_fold=3)
+
+    return classification_error(training_feature=testing_feature, training_label=testing_pseudo,
+                                testing_feature=training_feature, testing_label=training_label,
+                                classifier=classifier)
+    # return nfold_classification_error(testing_feature, testing_pseudo, classifier, n_fold=3)
 
 
 # Use training dataset to classify the testing dataset -> pseudo-testing

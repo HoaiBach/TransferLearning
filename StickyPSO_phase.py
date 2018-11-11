@@ -14,7 +14,6 @@ import time
 from sklearn.svm import LinearSVC
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
-import math
 
 # Setting for SBPSO
 NBIT = Core.no_features
@@ -113,22 +112,6 @@ def normalize_weight():
     else:
         FitnessFunction.srcWeight = 1.0/abs(src_err)
 
-def normalize_weight_exp():
-    # Make sure that all the weights are not 0, so all components are evaluated
-    FitnessFunction.srcWeight = 0.3
-    FitnessFunction.margWeight = 0.3
-    FitnessFunction.tarWeight = 0.3
-
-    src_err, diff_marg, tar_err = \
-        FitnessFunction.domain_differece(src_feature=Core.src_feature, src_label=Core.src_label,
-                                         classifier=Core.classifier, tar_feature=Core.tar_feature)
-    exp_src = math.exp(-abs(src_err))
-    exp_marg = math.exp(-abs(diff_marg))
-    exp_tar = math.exp(-abs(tar_err))
-
-    FitnessFunction.srcWeight = exp_src/((exp_src+exp_marg+exp_tar))
-    FitnessFunction.margWeight = exp_marg/((exp_src+exp_marg+exp_tar))
-    FitnessFunction.tarWeight = exp_tar /((exp_src+exp_marg+exp_tar))
 
 # args[0]: run_index
 # args[1]: diff_ST: 1-domain classification, 2-MMD
@@ -150,10 +133,10 @@ def main(args):
     time_start = time.clock()
 
     # Set the weight for each components in the fitness function
-    #normalize_weight_exp()
+    # normalize_weight()
     FitnessFunction.srcWeight = 1.0
-    FitnessFunction.margWeight = 1.0
-    FitnessFunction.tarWeight = 1.0
+    FitnessFunction.margWeight = 0.0
+    FitnessFunction.tarWeight = 0.0
 
     # Initialize population and the gbest
     pop = toolbox.population(n=NPART)
@@ -168,6 +151,19 @@ def main(args):
     for g in range(NGEN):
         print(g)
         to_write += ("=====Gen %d=====\n" % g)
+
+        if g == NGEN/3 or g == 2*NGEN/3:
+            if g == NGEN/3:
+                FitnessFunction.srcWeight = 1.0
+                FitnessFunction.margWeight = 1.0
+                FitnessFunction.tarWeight = 0.0
+            else:
+                FitnessFunction.srcWeight = 1.0
+                FitnessFunction.margWeight = 1.0
+                FitnessFunction.tarWeight = 1.0
+            best.fitness.values = toolbox.evaluate(best)
+            for part in pop:
+                part.best.fitness.values = toolbox.evaluate(part.best)
 
         for part in pop:
             # Evaluate all particles

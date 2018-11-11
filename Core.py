@@ -27,7 +27,8 @@ features_new = Utility.standarizeData(features)
 src_feature = features_new[0:len(src_feature), ]
 tar_feature = features_new[len(src_feature): len(src_feature)+len(tar_feature), ]
 
-# src_feature, src_label = Utility.balanced_sample_maker(src_feature, src_label, sample_size=10)
+# src_feature, src_label = Utility.balanced_sample_maker(src_feature, src_label, sample_size=8)
+# tar_feature, tar_label = Utility.balanced_sample_maker(tar_feature, tar_label, sample_size=8)
 # tarL_feature, tarL_label = Utility.balanced_sample_maker(tarL_feature, tarL_label, sample_size=1)
 # tarU_feature, tarU_label = Utility.balanced_sample_maker(tarU_feature, tarU_label, sample_size=10)
 
